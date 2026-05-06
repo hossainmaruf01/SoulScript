@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Journal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f7f4ef;
+      --surface: #ffffff;
+      --text: #1e1c18;
+      --muted: #7a7568;
+      --accent: #3d6b4f;
+      --accent-light: #e8f0eb;
+      --border: #e2ddd6;
+      --serif: 'Lora', Georgia, serif;
+      --sans: 'DM Sans', sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      line-height: 1.7;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-inner {
+      max-width: 760px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+    .logo {
+      font-family: var(--serif);
+      font-size: 1.35rem;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .logo span { color: var(--accent); }
+    nav { display: flex; gap: 1.5rem; }
+    nav a {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color .2s;
+    }
+    nav a:hover, nav a.active { color: var(--accent); }
+
+    /* ── Layout ── */
+    main {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 3rem 2rem 6rem;
+    }
+
+    /* ── Page sections ── */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ── Hero ── */
+    .hero {
+      text-align: center;
+      padding: 3.5rem 0 3rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 3rem;
+    }
+    .hero-date {
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+    .hero h1 {
+      font-family: var(--serif);
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 600;
+      line-height: 1.25;
+      margin-bottom: 1rem;
+    }
+    .hero p {
+      color: var(--muted);
+      font-size: 1rem;
+      max-width: 480px;
+      margin: 0 auto 2rem;
+    }
+    .btn {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      font-family: var(--sans);
+      font-size: 0.875rem;
+      font-weight: 500;
+      padding: .7rem 1.6rem;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity .2s, transform .15s;
+    }
+    .btn:hover { opacity: .88; transform: translateY(-1px); }
+    .btn-outline {
+      background: transparent;
+      color: var(--accent);
+      border: 1.5px solid var(--accent);
+    }
+    .btn-outline:hover { background: var(--accent-light); }
+
+    /* ── Entry cards ── */
+    .entries-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.75rem;
+    }
+    .entries-header h2 {
+      font-family: var(--serif);
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    .entries-count {
+      font-size: 0.8rem;
+      color: var(--muted);
+      background: var(--accent-light);
+      color: var(--accent);
+      padding: .2rem .7rem;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+
+    .entry-list { display: flex; flex-direction: column; gap: 1rem; }
+
+    .entry-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem 1.75rem;
+      cursor: pointer;
+      transition: border-color .2s, box-shadow .2s, transform .15s;
+      animation: fadeUp .35s ease both;
+    }
+    .entry-card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 4px 20px rgba(61,107,79,.08);
+      transform: translateY(-2px);
+    }
+    .entry-meta {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      margin-bottom: .6rem;
+    }
+    .entry-date {
+      font-size: 0.775rem;
+      font-weight: 500;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .entry-tag {
+      font-size: 0.7rem;
+      font-weight: 500;
+      padding: .15rem .6rem;
+      border-radius: 20px;
+      background: var(--accent-light);
+      color: var(--accent);
+    }
+    .entry-card h3 {
+      font-family: var(--serif);
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: .4rem;
+      line-height: 1.4;
+    }
+    .entry-card p {
+      font-size: 0.9rem;
+      color: var(--muted);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* ── Write page ── */
+    .write-header {
+      margin-bottom: 2rem;
+    }
+    .write-header h2 {
+      font-family: var(--serif);
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: .35rem;
+    }
+    .write-header p { color: var(--muted); font-size: 0.9rem; }
+
+    .form-group { margin-bottom: 1.25rem; }
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: .5rem;
+    }
+    input[type="text"], select, textarea {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .8rem 1rem;
+      font-family: var(--sans);
+      font-size: 1rem;
+      color: var(--text);
+      outline: none;
+      transition: border-color .2s;
+      resize: vertical;
+    }
+    input[type="text"]:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(61,107,79,.1);
+    }
+    textarea { min-height: 220px; line-height: 1.75; }
+    #title-input { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; }
+
+    .form-row { display: flex; gap: 1rem; }
+    .form-row .form-group { flex: 1; }
+
+    .char-count {
+      font-size: 0.775rem;
+      color: var(--muted);
+      text-align: right;
+      margin-top: .35rem;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: .75rem;
+      margin-top: 1.5rem;
+    }
+
+    .success-toast {
+      display: none;
+      background: var(--accent-light);
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: .9rem 1.25rem;
+      color: var(--accent);
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-top: 1rem;
+    }
+
+    /* ── Single entry view ── */
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      margin-bottom: 2rem;
+      transition: color .2s;
+      background: none;
+      border: none;
+      padding: 0;
+    }
+    .back-btn:hover { color: var(--accent); }
+    .back-btn::before { content: '←'; }
+
+    .entry-full h1 {
+      font-family: var(--serif);
+      font-size: clamp(1.6rem, 4vw, 2.2rem);
+      font-weight: 600;
+      line-height: 1.3;
+      margin-bottom: 1rem;
+    }
+    .entry-full .entry-meta { margin-bottom: 2rem; }
+    .entry-full .body {
+      font-family: var(--serif);
+      font-size: 1.05rem;
+      line-height: 1.9;
+      white-space: pre-wrap;
+      color: var(--text);
+    }
+    .entry-full .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 2.5rem 0;
+    }
+
+    /* ── About ── */
+    .about-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem;
+      text-align: center;
+      max-width: 520px;
+      margin: 2rem auto;
+    }
+    .about-avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: var(--accent-light);
+      border: 2px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--serif);
+      font-size: 1.75rem;
+      color: var(--accent);
+      margin: 0 auto 1.25rem;
+    }
+    .about-card h2 {
+      font-family: var(--serif);
+      font-size: 1.4rem;
+      margin-bottom: .5rem;
+    }
+    .about-card p { color: var(--muted); font-size: 0.95rem; }
+
+    /* ── Empty state ── */
+    .empty-state {
+      text-align: center;
+      padding: 4rem 1rem;
+      color: var(--muted);
+    }
+    .empty-state .icon { font-size: 2.5rem; margin-bottom: 1rem; opacity: .4; }
+    .empty-state h3 { font-family: var(--serif); font-size: 1.1rem; color: var(--text); margin-bottom: .5rem; }
+    .empty-state p { font-size: 0.9rem; margin-bottom: 1.5rem; }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 520px) {
+      main { padding: 2rem 1.25rem 5rem; }
+      .form-row { flex-direction: column; }
+      .hero { padding: 2rem 0; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a class="logo" href="#" onclick="showPage('home')">My <span>Journal</span></a>
+    <nav>
+      <a href="#" class="active" id="nav-home" onclick="showPage('home')">Home</a>
+      <a href="#" id="nav-write" onclick="showPage('write')">Write</a>
+      <a href="#" id="nav-about" onclick="showPage('about')">About</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <!-- ── HOME PAGE ── -->
+  <div class="page active" id="page-home">
+    <div class="hero">
+      <div class="hero-date" id="today-date"></div>
+      <h1>A quiet corner<br>for my thoughts</h1>
+      <p>A personal journal — raw, honest, and written one day at a time.</p>
+      <button class="btn" onclick="showPage('write')">Write today's entry</button>
+    </div>
+
+    <div class="entries-header">
+      <h2>Recent entries</h2>
+      <span class="entries-count" id="entry-count">0 entries</span>
+    </div>
+
+    <div class="entry-list" id="entry-list">
+      <div class="empty-state">
+        <div class="icon">📓</div>
+        <h3>No entries yet</h3>
+        <p>Your first entry is just a click away.</p>
+        <button class="btn" onclick="showPage('write')">Start writing</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── WRITE PAGE ── -->
+  <div class="page" id="page-write">
+    <div class="write-header">
+      <h2>New entry</h2>
+      <p>Write freely. No one is judging. Just you and the page.</p>
+    </div>
+
+    <div class="form-group">
+      <label for="title-input">Title</label>
+      <input type="text" id="title-input" placeholder="What's this entry about?" maxlength="100"/>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="date-input">Date</label>
+        <input type="text" id="date-input" readonly/>
+      </div>
+      <div class="form-group">
+        <label for="mood-select">Mood</label>
+        <select id="mood-select">
+          <option value="">— select —</option>
+          <option value="Reflective">Reflective</option>
+          <option value="Happy">Happy</option>
+          <option value="Grateful">Grateful</option>
+          <option value="Anxious">Anxious</option>
+          <option value="Sad">Sad</option>
+          <option value="Excited">Excited</option>
+          <option value="Tired">Tired</option>
+          <option value="Peaceful">Peaceful</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="body-input">Your thoughts</label>
+      <textarea id="body-input" placeholder="Write anything on your mind today…" oninput="updateCount()"></textarea>
+      <div class="char-count"><span id="word-count">0</span> words</div>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn" onclick="saveEntry()">Save entry</button>
+      <button class="btn btn-outline" onclick="showPage('home')">Cancel</button>
+    </div>
+    <div class="success-toast" id="success-toast">✓ Entry saved! <span style="opacity:.7;font-weight:400">Redirecting to your journal…</span></div>
+  </div>
+
+  <!-- ── SINGLE ENTRY VIEW ── -->
+  <div class="page" id="page-entry">
+    <button class="back-btn" onclick="showPage('home')">Back to journal</button>
+    <article class="entry-full">
+      <div class="entry-meta">
+        <span class="entry-date" id="view-date"></span>
+        <span class="entry-tag" id="view-mood"></span>
+      </div>
+      <h1 id="view-title"></h1>
+      <hr class="divider"/>
+      <div class="body" id="view-body"></div>
+    </article>
+  </div>
+
+  <!-- ── ABOUT PAGE ── -->
+  <div class="page" id="page-about">
+    <div class="about-card">
+      <div class="about-avatar" id="about-initial">J</div>
+      <h2 id="about-name">My Journal</h2>
+      <p>This is a personal journal website. A place to write, reflect, and remember. Built with a simple HTML file — no complicated tools needed.</p>
+    </div>
+    <div style="max-width:520px;margin:1.5rem auto;">
+      <div class="form-group">
+        <label for="journal-name-input">Customize your journal name</label>
+        <input type="text" id="journal-name-input" placeholder="e.g. Rafi's Journal" maxlength="50"/>
+      </div>
+      <button class="btn" onclick="saveJournalName()">Save name</button>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <span id="footer-name">My Journal</span> · built with ♥ and HTML
+</footer>
+
+<script>
+  // ── Data ──
+  let entries = JSON.parse(localStorage.getItem('journal_entries') || '[]');
+  let journalName = localStorage.getItem('journal_name') || 'My Journal';
+
+  // ── Init ──
+  function init() {
+    applyName();
+    setTodayDate();
+    renderEntries();
+  }
+
+  function applyName() {
+    document.querySelector('.logo').innerHTML = journalName.split(' ').length > 1
+      ? journalName.split(' ').slice(0,-1).join(' ') + ' <span>' + journalName.split(' ').slice(-1) + '</span>'
+      : '<span>' + journalName + '</span>';
+    document.title = journalName;
+    document.getElementById('footer-name').textContent = journalName;
+    document.getElementById('about-name').textContent = journalName;
+    document.getElementById('about-initial').textContent = journalName[0].toUpperCase();
+    document.getElementById('journal-name-input').value = journalName;
+  }
+
+  function setTodayDate() {
+    const now = new Date();
+    const opts = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
+    const str = now.toLocaleDateString('en-US', opts);
+    document.getElementById('today-date').textContent = str;
+    document.getElementById('date-input').value = str;
+  }
+
+  // ── Navigation ──
+  function showPage(name) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+    const nav = document.getElementById('nav-' + name);
+    if (nav) nav.classList.add('active');
+    window.scrollTo(0, 0);
+    if (name === 'home') renderEntries();
+  }
+
+  // ── Entries ──
+  function renderEntries() {
+    const list = document.getElementById('entry-list');
+    const count = document.getElementById('entry-count');
+    count.textContent = entries.length + (entries.length === 1 ? ' entry' : ' entries');
+
+    if (!entries.length) {
+      list.innerHTML = `<div class="empty-state">
+        <div class="icon">📓</div>
+        <h3>No entries yet</h3>
+        <p>Your first entry is just a click away.</p>
+        <button class="btn" onclick="showPage('write')">Start writing</button>
+      </div>`;
+      return;
+    }
+
+    list.innerHTML = [...entries].reverse().map((e, i) => `
+      <div class="entry-card" onclick="viewEntry(${entries.length - 1 - i})" style="animation-delay:${i * 0.05}s">
+        <div class="entry-meta">
+          <span class="entry-date">${e.date}</span>
+          ${e.mood ? `<span class="entry-tag">${e.mood}</span>` : ''}
+        </div>
+        <h3>${escHtml(e.title || 'Untitled')}</h3>
+        <p>${escHtml(e.body)}</p>
+      </div>`).join('');
+  }
+
+  function viewEntry(index) {
+    const e = entries[index];
+    document.getElementById('view-title').textContent = e.title || 'Untitled';
+    document.getElementById('view-date').textContent = e.date;
+    document.getElementById('view-mood').textContent = e.mood || '';
+    document.getElementById('view-mood').style.display = e.mood ? '' : 'none';
+    document.getElementById('view-body').textContent = e.body;
+    showPage('entry');
+  }
+
+  function saveEntry() {
+    const title = document.getElementById('title-input').value.trim();
+    const body  = document.getElementById('body-input').value.trim();
+    const mood  = document.getElementById('mood-select').value;
+
+    if (!body) {
+      document.getElementById('body-input').focus();
+      document.getElementById('body-input').style.borderColor = '#e05252';
+      setTimeout(() => document.getElementById('body-input').style.borderColor = '', 1500);
+      return;
+    }
+
+    entries.push({
+      title: title || 'Untitled',
+      body,
+      mood,
+      date: document.getElementById('date-input').value,
+      ts: Date.now()
+    });
+    localStorage.setItem('journal_entries', JSON.stringify(entries));
+
+    // reset form
+    document.getElementById('title-input').value = '';
+    document.getElementById('body-input').value = '';
+    document.getElementById('mood-select').value = '';
+    document.getElementById('word-count').textContent = '0';
+
+    const toast = document.getElementById('success-toast');
+    toast.style.display = 'block';
+    setTimeout(() => { toast.style.display = 'none'; showPage('home'); }, 1800);
+  }
+
+  function updateCount() {
+    const words = document.getElementById('body-input').value.trim().split(/\s+/).filter(w => w).length;
+    document.getElementById('word-count').textContent = words;
+  }
+
+  function saveJournalName() {
+    const val = document.getElementById('journal-name-input').value.trim();
+    if (!val) return;
+    journalName = val;
+    localStorage.setItem('journal_name', journalName);
+    applyName();
+  }
+
+  function escHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  init();
+</script>
+</body>
+</html>
